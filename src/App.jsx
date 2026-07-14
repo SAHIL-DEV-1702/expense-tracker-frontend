@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000/api";
+const rawApiUrl = import.meta.env.VITE_API_URL?.trim().replace(/\/+$|\s+$/g, "") || "http://localhost:8000/api";
+
+const API_URL = rawApiUrl.endsWith("/api") ? rawApiUrl : `${rawApiUrl}/api`;
 
 function App() {
   const [expenses, setExpenses] = useState([]);
@@ -16,7 +18,6 @@ function App() {
 
   const fetchExpenses = async () => {
     try {
-      setLoading(true);
       const response = await axios.get(`${API_URL}/expenses`);
       setExpenses(response.data);
       setError("");
@@ -29,7 +30,27 @@ function App() {
   };
 
   useEffect(() => {
-    fetchExpenses();
+    let active = true;
+
+    const loadExpenses = async () => {
+      try {
+        const response = await axios.get(`${API_URL}/expenses`);
+        if (!active) return;
+        setExpenses(response.data);
+        setError("");
+      } catch (err) {
+        console.error(err);
+        if (active) setError("Unable to load expenses right now.");
+      } finally {
+        if (active) setLoading(false);
+      }
+    };
+
+    loadExpenses();
+
+    return () => {
+      active = false;
+    };
   }, []);
 
   const handleChange = (e) => {
