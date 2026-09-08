@@ -7,13 +7,6 @@ The application provides secure user authentication, expense management, and a s
 ---
 
 ## 🚀 Features
-
-* 🔐 **User Authentication**
-
-  * Secure user registration and login
-  * JWT-based authentication
-  * Protected routes for authenticated users
-
 * 💸 **Expense Management**
 
   * Add new expenses
